@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /a \"C:\\\\Users\\\\makiz\\\\Downloads\\\\Projects\\\\Landing page roaster\")",
+      "Bash(npx create-next-app:*)",
+      "Bash(npm init -y)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npm run dev:*)"
+    ]
+  }
+}

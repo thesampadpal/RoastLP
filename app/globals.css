@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #ffffff;
+  --background: #0a0a0a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Neon text glow effect */
+.text-glow {
+  text-shadow: 0 0 10px rgba(255, 107, 53, 0.8),
+               0 0 20px rgba(255, 107, 53, 0.6),
+               0 0 30px rgba(255, 107, 53, 0.4);
+}
+
+.text-glow-pink {
+  text-shadow: 0 0 10px rgba(255, 0, 128, 0.8),
+               0 0 20px rgba(255, 0, 128, 0.6),
+               0 0 30px rgba(255, 0, 128, 0.4);
+}
+
+/* Neon border glow */
+.border-glow {
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.5),
+              inset 0 0 20px rgba(255, 107, 53, 0.1);
+}
+
+.border-glow:hover {
+  box-shadow: 0 0 40px rgba(255, 107, 53, 0.8),
+              inset 0 0 30px rgba(255, 107, 53, 0.2);
+}
+
+/* Button styles */
+.btn-neon {
+  @apply relative px-8 py-4 bg-neon-orange text-black font-bold uppercase tracking-wider;
+  @apply hover:shadow-neon-strong transition-all duration-300;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-neon::before {
+  content: '';
+  @apply absolute inset-0 bg-neon-orange blur-xl opacity-50 -z-10;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6b35;
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(255, 107, 53, 0.3);
+  color: #fff;
+}
