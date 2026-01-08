@@ -4,71 +4,52 @@
 
 :root {
   --foreground: #ffffff;
-  --background: #0a0a0a;
+  --background: #050505;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-mono);
 }
 
-/* Neon text glow effect */
-.text-glow {
-  text-shadow: 0 0 10px rgba(255, 107, 53, 0.8),
-               0 0 20px rgba(255, 107, 53, 0.6),
-               0 0 30px rgba(255, 107, 53, 0.4);
+.bg-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
-.text-glow-pink {
-  text-shadow: 0 0 10px rgba(255, 0, 128, 0.8),
-               0 0 20px rgba(255, 0, 128, 0.6),
-               0 0 30px rgba(255, 0, 128, 0.4);
+.glass-panel {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Neon border glow */
-.border-glow {
-  box-shadow: 0 0 20px rgba(255, 107, 53, 0.5),
-              inset 0 0 20px rgba(255, 107, 53, 0.1);
-}
-
-.border-glow:hover {
-  box-shadow: 0 0 40px rgba(255, 107, 53, 0.8),
-              inset 0 0 30px rgba(255, 107, 53, 0.2);
-}
-
-/* Button styles */
-.btn-neon {
-  @apply relative px-8 py-4 bg-neon-orange text-black font-bold uppercase tracking-wider;
-  @apply hover:shadow-neon-strong transition-all duration-300;
+.btn-primary {
+  @apply relative px-6 py-3 bg-lime-400 text-black font-mono text-sm uppercase tracking-wide font-bold;
+  @apply hover:bg-lime-500 transition-colors duration-200;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
-.btn-neon::before {
-  content: '';
-  @apply absolute inset-0 bg-neon-orange blur-xl opacity-50 -z-10;
-}
-
-/* Scrollbar styling */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #141414;
+  background: #050505;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #333;
-  border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff6b35;
+  background: #444;
 }
 
-/* Selection styling */
-::selection {
-  background: rgba(255, 107, 53, 0.3);
-  color: #fff;
+.serif {
+  font-family: var(--font-playfair), serif;
+}
+
+.mono {
+  font-family: var(--font-mono), monospace;
 }

@@ -50,38 +50,36 @@ export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixF
       variants={container}
       initial="hidden"
       animate="show"
-      className="w-full max-w-4xl mx-auto space-y-6"
+      className="w-full space-y-8 font-mono"
     >
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-8">
         {/* Copy Roast */}
-        <motion.div variants={item} className="bg-dark-800 rounded-lg p-6 border border-gray-800 relative group hover:border-neon-blue/50 transition-colors">
-          <div className="absolute top-0 left-0 w-1 h-full bg-neon-blue rounded-l-lg opacity-50"></div>
-          <h3 className="text-xl font-bold text-neon-blue mb-3 flex items-center gap-2">
-            <span>✍️</span> Copy Roast
-          </h3>
-          <p className="text-gray-300 leading-relaxed">{copyRoast}</p>
+        <motion.div variants={item} className="space-y-2">
+          <div className="text-xs text-lime-400 bg-lime-400/10 px-2 py-1 inline-block">[ ANALYSIS_COPY ]</div>
+          <div className="p-4 border-l border-white/20 text-gray-300 text-sm leading-relaxed">
+            {copyRoast}
+          </div>
         </motion.div>
 
         {/* Design Roast */}
-        <motion.div variants={item} className="bg-dark-800 rounded-lg p-6 border border-gray-800 relative group hover:border-neon-purple/50 transition-colors">
-          <div className="absolute top-0 left-0 w-1 h-full bg-neon-purple rounded-l-lg opacity-50"></div>
-          <h3 className="text-xl font-bold text-neon-purple mb-3 flex items-center gap-2">
-            <span>🎨</span> Design Roast
-          </h3>
-          <p className="text-gray-300 leading-relaxed">{designRoast}</p>
+        <motion.div variants={item} className="space-y-2">
+          <div className="text-xs text-lime-400 bg-lime-400/10 px-2 py-1 inline-block">[ ANALYSIS_DESIGN ]</div>
+          <div className="p-4 border-l border-white/20 text-gray-300 text-sm leading-relaxed">
+            {designRoast}
+          </div>
         </motion.div>
       </div>
 
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
       {/* Slop Signals */}
-      <motion.div variants={item} className="bg-dark-800 rounded-lg p-6 border border-gray-800">
-        <h3 className="text-lg font-bold text-neon-orange mb-4 flex items-center gap-2">
-          <span>🤖</span> AI Slop Signals Detected
-        </h3>
+      <motion.div variants={item}>
+        <h3 className="text-xs text-gray-500 mb-4 uppercase tracking-wider">// DETECTED_PATTERNS</h3>
         <div className="flex flex-wrap gap-2">
           {slopSignals.map((signal, idx) => (
             <span
               key={idx}
-              className="px-3 py-1 bg-dark-700 text-gray-300 rounded-full text-sm border border-gray-700"
+              className="px-2 py-1 bg-white/5 text-gray-300 text-xs border border-white/10"
             >
               {signal}
             </span>
@@ -90,27 +88,27 @@ export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixF
       </motion.div>
 
       {/* Fix First */}
-      <motion.div variants={item} className="bg-gradient-to-r from-red-900/20 to-orange-900/20 rounded-lg p-6 border border-red-900/50">
-        <h3 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2">
-          <span>🚨</span> Fix This First
+      <motion.div variants={item} className="bg-red-500/5 border border-red-500/20 p-6 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50" />
+        <h3 className="text-red-500 text-sm font-bold uppercase mb-2 tracking-wider flex items-center gap-2">
+          [ CRITICAL_ISSUE ]
         </h3>
-        <p className="text-lg text-white font-medium">{fixFirst}</p>
+        <p className="text-lg text-white/90">{fixFirst}</p>
       </motion.div>
 
       {/* Action buttons */}
-      <motion.div variants={item} className="flex justify-center gap-4 pt-4">
+      <motion.div variants={item} className="flex gap-4 pt-4 border-t border-white/10">
         <button
           onClick={handleCopy}
-          className="px-4 py-2 bg-dark-700 hover:bg-dark-800 border border-gray-700 hover:border-gray-600 rounded-none text-sm transition-all"
+          className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-xs tracking-widest uppercase transition-colors"
         >
-          {copied ? "Copied!" : "Copy Results"}
+          {copied ? "COPIED_TO_CLIPBOARD" : "COPY_REPORT"}
         </button>
         <button
           onClick={handleShare}
-          className="px-4 py-2 bg-dark-700 hover:bg-dark-800 border border-gray-700 hover:border-gray-600 rounded-none text-sm transition-all flex items-center gap-2"
+          className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-xs tracking-widest uppercase transition-colors"
         >
-          <span>Share on</span>
-          <span className="font-bold">𝕏</span>
+          SHARE_ON_X
         </button>
       </motion.div>
     </motion.div>

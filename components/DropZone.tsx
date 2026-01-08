@@ -62,10 +62,9 @@ export default function DropZone({
         relative w-full max-w-2xl mx-auto aspect-video
         border-2 border-dashed rounded-lg
         transition-all duration-300 cursor-pointer
-        ${
-          isDragActive
-            ? "border-neon-orange border-glow bg-dark-800"
-            : "border-gray-600 hover:border-neon-orange hover:border-glow"
+        ${isDragActive
+          ? "border-lime-400 bg-lime-400/5 active-glow"
+          : "border-white/20 hover:border-lime-400 hover:bg-white/5"
         }
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}
       `}
@@ -79,19 +78,21 @@ export default function DropZone({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 p-2"
+            className="absolute inset-0 p-4"
           >
-            <img
-              src={displayImage}
-              alt="Uploaded landing page"
-              className="w-full h-full object-contain rounded"
-            />
+            <div className="relative w-full h-full border border-white/10 rounded overflow-hidden bg-black/50">
+              <img
+                src={displayImage}
+                alt="Uploaded landing page"
+                className="w-full h-full object-contain"
+              />
+            </div>
             {!disabled && (
               <button
                 onClick={handleClear}
-                className="absolute top-4 right-4 bg-dark-800 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                className="absolute top-6 right-6 bg-black border border-white/20 hover:border-red-500 hover:text-red-500 text-white px-4 py-2 text-xs font-mono uppercase tracking-wider transition-colors"
               >
-                Change
+                [REMOVE_FILE]
               </button>
             )}
           </motion.div>
@@ -101,21 +102,21 @@ export default function DropZone({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 flex flex-col items-center justify-center p-6 font-mono"
           >
-            <div className="text-6xl mb-4">
-              {isDragActive ? "🔥" : "📸"}
+            <div className="text-4xl mb-4 text-lime-400/50">
+              {isDragActive ? "[ ! ]" : "[ + ]"}
             </div>
-            <p className="text-xl font-semibold text-center mb-2">
+            <p className="text-sm uppercase tracking-widest mb-2 text-white">
               {isDragActive
-                ? "Drop it like it's hot"
-                : "Drag & drop your landing page"}
+                ? "INITIALIZING UPLOAD..."
+                : "UPLOAD_TARGET_FILE"}
             </p>
-            <p className="text-gray-400 text-center">
-              or click to select a file
+            <p className="text-white/40 text-xs">
+              CLICK OR DRAG FILE HERE
             </p>
-            <p className="text-gray-500 text-sm mt-4">
-              PNG, JPG, WebP (max 5MB)
+            <p className="text-white/20 text-[10px] mt-4 uppercase">
+              SUPPORTED: PNG, JPG, WEBP (MAX 5MB)
             </p>
           </motion.div>
         )}

@@ -52,64 +52,34 @@ export default function SlopScore({ score }: SlopScoreProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
+      initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col items-center"
+      className="flex flex-col"
     >
-      <div className="relative w-40 h-40">
-        {/* Background circle */}
-        <svg className="w-full h-full transform -rotate-90">
-          <circle
-            cx="80"
-            cy="80"
-            r="45"
-            stroke="#1a1a1a"
-            strokeWidth="10"
-            fill="none"
-          />
-          {/* Progress circle */}
-          <motion.circle
-            cx="80"
-            cy="80"
-            r="45"
-            stroke={color}
-            strokeWidth="10"
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            style={{
-              filter: `drop-shadow(0 0 10px ${color})`,
-            }}
-          />
-        </svg>
-        {/* Score number */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span
-            className="text-4xl font-bold"
-            style={{ color, textShadow: `0 0 20px ${color}` }}
-          >
-            {displayScore}
-          </span>
-        </div>
+      <div className="flex items-end gap-2 mb-2">
+        <span className={`text-5xl font-bold font-mono ${score > 50 ? 'text-red-500' : 'text-lime-400'}`}>
+          {displayScore}%
+        </span>
+        <span className="text-xs font-mono text-gray-500 mb-2 uppercase tracking-wider">
+          Probability
+        </span>
       </div>
 
-      {/* Label */}
-      <p className="text-sm text-gray-400 mt-2 uppercase tracking-wider">
-        AI Slop Score
-      </p>
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
-        className="text-lg font-semibold mt-1"
-        style={{ color }}
-      >
-        {label}
-      </motion.p>
+      <div className="w-full h-2 bg-white/10 overflow-hidden relative">
+        <motion.div
+          className={`h-full ${score > 50 ? 'bg-red-500' : 'bg-lime-400'}`}
+          initial={{ width: 0 }}
+          animate={{ width: `${displayScore}%` }}
+          transition={{ duration: 1, ease: "circOut" }}
+        />
+        {/* Grid lines on bar */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik00IDBMMCA0IiBzdHJva2U9InJnYmEoMCwwLDAsMC4yKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+')] opacity-30" />
+      </div>
+
+      <div className="mt-2 flex justify-between items-center text-xs font-mono">
+        <span className="text-gray-400 uppercase">{label}</span>
+        <span className="text-gray-600">MAX_TOLERANCE: 20%</span>
+      </div>
     </motion.div>
   );
 }

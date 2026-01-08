@@ -7,36 +7,26 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        serif: ["var(--font-playfair)", "serif"],
+        mono: ["var(--font-mono)", "monospace"],
+      },
       colors: {
-        neon: {
-          orange: "#ff6b35",
-          pink: "#ff0080",
-          yellow: "#ffd600",
+        lime: {
+          400: "#DFFF00",
+          500: "#CCFF00",
         },
         dark: {
-          900: "#0a0a0a",
-          800: "#141414",
-          700: "#1a1a1a",
+          900: "#050505",
+          800: "#0a0a0a",
+          700: "#141414",
         },
       },
-      boxShadow: {
-        neon: "0 0 20px rgba(255, 107, 53, 0.5)",
-        "neon-strong": "0 0 40px rgba(255, 107, 53, 0.8)",
-        "neon-pink": "0 0 20px rgba(255, 0, 128, 0.5)",
+      backgroundImage: {
+        "grid-pattern": "linear-gradient(to right, #1a1a1a 1px, transparent 1px), linear-gradient(to bottom, #1a1a1a 1px, transparent 1px)",
       },
       animation: {
-        "pulse-neon": "pulse-neon 2s ease-in-out infinite",
-        flame: "flame 0.5s ease-in-out infinite alternate",
-      },
-      keyframes: {
-        "pulse-neon": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(255, 107, 53, 0.5)" },
-          "50%": { boxShadow: "0 0 40px rgba(255, 107, 53, 0.8)" },
-        },
-        flame: {
-          "0%": { transform: "scale(1) rotate(-2deg)" },
-          "100%": { transform: "scale(1.1) rotate(2deg)" },
-        },
+        "spin-slow": "spin 20s linear infinite",
       },
     },
   },
