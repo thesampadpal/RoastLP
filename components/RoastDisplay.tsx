@@ -8,12 +8,15 @@ interface RoastDisplayProps {
   designRoast: string;
   slopSignals: string[];
   fixFirst: string;
+  slopScore?: number;
+  shareUrl?: string;
 }
 
-export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixFirst }: RoastDisplayProps) {
+export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixFirst, slopScore, shareUrl }: RoastDisplayProps) {
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
-  const fullRoastText = `COPY ROAST:\n${copyRoast}\n\nDESIGN ROAST:\n${designRoast}\n\nFIX THIS FIRST:\n${fixFirst}`;
+  const fullRoastText = `COPY ROAST:\n${copyRoast}\n\nDESIGN PATTERNS:\n${designRoast}\n\nFIX THIS FIRST:\n${fixFirst}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(fullRoastText);
@@ -21,9 +24,18 @@ export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixF
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCopyLink = async () => {
+    if (shareUrl) {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    }
+  };
+
   const handleShare = () => {
-    const text = `I just got my landing page roasted! 🔥\n\nSlop Signal: ${slopSignals[0]}\n"${fixFirst}"\n\nGet roasted at:`;
-    const url = window.location.href;
+    const scoreText = slopScore !== undefined ? `Slop Score: ${slopScore}%\n\n` : "";
+    const text = `I just got my landing page roasted! 🔥\n\n${scoreText}"${fixFirst}"\n\nGet roasted at:`;
+    const url = shareUrl || window.location.origin;
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
       "_blank"
@@ -61,9 +73,9 @@ export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixF
           </div>
         </motion.div>
 
-        {/* Design Roast */}
+        {/* Design Patterns */}
         <motion.div variants={item} className="space-y-2">
-          <div className="text-xs text-lime-400 bg-lime-400/10 px-2 py-1 inline-block">[ ANALYSIS_DESIGN ]</div>
+          <div className="text-xs text-lime-400 bg-lime-400/10 px-2 py-1 inline-block">[ DESIGN_PATTERNS ]</div>
           <div className="p-4 border-l border-white/20 text-gray-300 text-sm leading-relaxed">
             {designRoast}
           </div>
@@ -97,13 +109,21 @@ export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixF
       </motion.div>
 
       {/* Action buttons */}
-      <motion.div variants={item} className="flex gap-4 pt-4 border-t border-white/10">
+      <motion.div variants={item} className="flex flex-wrap gap-4 pt-4 border-t border-white/10">
         <button
           onClick={handleCopy}
           className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-xs tracking-widest uppercase transition-colors"
         >
-          {copied ? "COPIED_TO_CLIPBOARD" : "COPY_REPORT"}
+          {copied ? "COPIED!" : "COPY_REPORT"}
         </button>
+        {shareUrl && (
+          <button
+            onClick={handleCopyLink}
+            className="px-6 py-3 bg-lime-400/10 hover:bg-lime-400/20 text-lime-400 text-xs tracking-widest uppercase transition-colors border border-lime-400/30"
+          >
+            {linkCopied ? "LINK_COPIED!" : "COPY_SHARE_LINK"}
+          </button>
+        )}
         <button
           onClick={handleShare}
           className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-xs tracking-widest uppercase transition-colors"

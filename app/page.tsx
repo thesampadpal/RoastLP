@@ -8,12 +8,28 @@ import LoadingState from "@/components/LoadingState";
 import SlopScore from "@/components/SlopScore";
 import RoastDisplay from "@/components/RoastDisplay";
 
+function generateShareUrl(result: RoastResponse): string {
+  const data = {
+    copyRoast: result.copyRoast,
+    designRoast: result.designRoast,
+    slopScore: result.slopScore,
+    slopSignals: result.slopSignals,
+    fixFirst: result.fixFirst,
+  };
+  const encoded = btoa(JSON.stringify(data));
+  return `${window.location.origin}/r/${encodeURIComponent(encoded)}`;
+}
+
 export default function Home() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("");
   const [roastResult, setRoastResult] = useState<RoastResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inputMode, setInputMode] = useState<"upload" | "url">("upload");
+  const [urlInput, setUrlInput] = useState("");
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   const handleImageUpload = (base64: string, mimeType: string) => {
     if (!base64) {
@@ -56,6 +72,7 @@ export default function Home() {
       }
 
       setRoastResult(data);
+      setShareUrl(generateShareUrl(data));
     } catch (err) {
       setError(
         err instanceof Error
@@ -72,6 +89,40 @@ export default function Home() {
     setImageMimeType("");
     setRoastResult(null);
     setError(null);
+    setUrlInput("");
+    setShareUrl(null);
+  };
+
+  const handleUrlCapture = async () => {
+    if (!urlInput.trim()) return;
+
+    setIsCapturing(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/screenshot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: urlInput.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to capture screenshot");
+      }
+
+      setUploadedImage(`data:${data.mimeType};base64,${data.image}`);
+      setImageMimeType(data.mimeType);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to capture screenshot. Try uploading manually."
+      );
+    } finally {
+      setIsCapturing(false);
+    }
   };
 
   return (
@@ -179,11 +230,90 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <DropZone
-                      onImageUpload={handleImageUpload}
-                      uploadedImage={uploadedImage}
-                      disabled={isLoading}
-                    />
+                    {/* Input Mode Tabs */}
+                    <div className="flex gap-2 p-1 bg-white/5 rounded">
+                      <button
+                        onClick={() => setInputMode("upload")}
+                        className={`flex-1 py-2 text-xs font-mono uppercase tracking-wider transition-all ${
+                          inputMode === "upload"
+                            ? "bg-lime-400 text-black"
+                            : "text-gray-400 hover:text-white"
+                        }`}
+                      >
+                        Upload
+                      </button>
+                      <button
+                        onClick={() => setInputMode("url")}
+                        className={`flex-1 py-2 text-xs font-mono uppercase tracking-wider transition-all ${
+                          inputMode === "url"
+                            ? "bg-lime-400 text-black"
+                            : "text-gray-400 hover:text-white"
+                        }`}
+                      >
+                        Paste URL
+                      </button>
+                    </div>
+
+                    {inputMode === "upload" ? (
+                      <DropZone
+                        onImageUpload={handleImageUpload}
+                        uploadedImage={uploadedImage}
+                        disabled={isLoading}
+                      />
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <input
+                            type="url"
+                            value={urlInput}
+                            onChange={(e) => setUrlInput(e.target.value)}
+                            placeholder="https://example.com"
+                            disabled={isCapturing || isLoading}
+                            className="w-full bg-black border border-white/20 px-4 py-4 text-sm font-mono text-white placeholder:text-gray-600 focus:border-lime-400 focus:outline-none transition-colors disabled:opacity-50"
+                          />
+                        </div>
+
+                        {uploadedImage && (
+                          <div className="relative aspect-video border border-white/10 rounded overflow-hidden bg-black/50">
+                            <img
+                              src={uploadedImage}
+                              alt="Captured screenshot"
+                              className="w-full h-full object-contain"
+                            />
+                            <button
+                              onClick={() => {
+                                setUploadedImage(null);
+                                setImageMimeType("");
+                              }}
+                              className="absolute top-2 right-2 bg-black border border-white/20 hover:border-red-500 hover:text-red-500 text-white px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors"
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        )}
+
+                        {!uploadedImage && (
+                          <button
+                            onClick={handleUrlCapture}
+                            disabled={!urlInput.trim() || isCapturing}
+                            className={`w-full py-3 text-xs font-mono uppercase tracking-wider transition-all ${
+                              urlInput.trim() && !isCapturing
+                                ? "bg-white/10 border border-white/20 text-white hover:bg-white/20"
+                                : "bg-white/5 text-gray-600 cursor-not-allowed border border-white/5"
+                            }`}
+                          >
+                            {isCapturing ? (
+                              <span className="flex items-center justify-center gap-2">
+                                <span className="w-3 h-3 border border-lime-400 border-t-transparent rounded-full animate-spin" />
+                                Capturing...
+                              </span>
+                            ) : (
+                              "Capture Screenshot"
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     <div className="space-y-4">
                       {error && (
@@ -262,6 +392,8 @@ export default function Home() {
                       designRoast={roastResult!.designRoast}
                       slopSignals={roastResult!.slopSignals}
                       fixFirst={roastResult!.fixFirst}
+                      slopScore={roastResult!.slopScore}
+                      shareUrl={shareUrl || undefined}
                     />
                   </div>
                 </div>
