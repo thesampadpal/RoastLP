@@ -8,10 +8,10 @@ export interface RoastResponse {
 
 export function parseRoastResponse(response: string): RoastResponse {
   try {
-    // 1. Remove markdown code blocks if present (common with Gemini/Claude)
+    // Remove markdown code blocks if present
     let cleanResponse = response.replace(/```json/gi, "").replace(/```/g, "").trim();
 
-    // 2. Find the JSON object bounds
+    // Find the JSON object bounds
     const firstBrace = cleanResponse.indexOf('{');
     const lastBrace = cleanResponse.lastIndexOf('}');
 
@@ -19,23 +19,32 @@ export function parseRoastResponse(response: string): RoastResponse {
       const jsonStr = cleanResponse.substring(firstBrace, lastBrace + 1);
       const parsed = JSON.parse(jsonStr);
 
+      // Convert designPatterns array to a readable string
+      const designPatterns = Array.isArray(parsed.designPatterns)
+        ? parsed.designPatterns.join(", ")
+        : parsed.designPatterns || parsed.designRoast || "No specific patterns noted";
+
       return {
         copyRoast: parsed.copyRoast || "The copy was so generic our parser fell asleep.",
-        designRoast: parsed.designRoast || "The design broke our roast machine.",
-        slopScore: Math.min(100, Math.max(0, parsed.slopScore || 50)),
-        slopSignals: Array.isArray(parsed.slopSignals) ? parsed.slopSignals : ["Generic vibe"],
-        fixFirst: parsed.fixFirst || "Just start over.",
+        designRoast: designPatterns,
+        slopScore: Math.min(100, Math.max(0, parsed.slopScore || parsed.copySlopScore || 50)),
+        slopSignals: Array.isArray(parsed.slopSignals)
+          ? parsed.slopSignals
+          : Array.isArray(parsed.copySlopSignals)
+            ? parsed.copySlopSignals
+            : ["No specific signals detected"],
+        fixFirst: parsed.fixFirst || "Review the copy for specificity.",
       };
     }
     throw new Error("No JSON found");
   } catch (e) {
-    // Fallback if JSON parsing fails - treat entire response as a generic roast
+    console.error("Parse error:", e);
     return {
       copyRoast: "Error analyzing response.",
-      designRoast: response || "Even our AI is speechless. That's not a good sign.",
+      designRoast: response || "Analysis failed.",
       slopScore: 50,
-      slopSignals: ["Parsing Error", "AI Confusion"],
-      fixFirst: "Try again.",
+      slopSignals: ["Parsing Error"],
+      fixFirst: "Try again with a clearer screenshot.",
     };
   }
 }

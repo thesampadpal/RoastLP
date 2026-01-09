@@ -6,7 +6,9 @@
       "Bash(npm init -y)",
       "Bash(npm install:*)",
       "Bash(npx tailwindcss:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Switch to OpenRouter GPT-4o-mini and improve prompts\n\n- Switch from Groq \\(decommissioned vision models\\) to OpenRouter\n- Use GPT-4o-mini for reliable, cheap vision analysis\n- Improve prompts for more varied slop scores \\(not always 50%\\)\n- Add calibration examples for scoring consistency\n- Require quoting exact phrases from pages\n- Make feedback more actionable with specific suggestions\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

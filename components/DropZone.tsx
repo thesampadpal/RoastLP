@@ -17,23 +17,42 @@ export default function DropZone({
 }: DropZoneProps) {
   const [preview, setPreview] = useState<string | null>(null);
 
+
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setPreview(result);
-        // Extract base64 data without the data URL prefix
-        const base64 = result.split(",")[1];
-        onImageUpload(base64, file.type);
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Resize and compress image on client side
+        // This significantly reduces payload size for the API call
+        // Dynamically import to avoid SSR issues if any
+        const { resizeImage } = await import("@/lib/imageUtils");
+        const resizedDataUrl = await resizeImage(file);
+
+        setPreview(resizedDataUrl);
+
+        // Extract base64 and mime type
+        const [meta, base64] = resizedDataUrl.split(",");
+        const mimeType = meta.split(":")[1].split(";")[0];
+
+        onImageUpload(base64, mimeType);
+      } catch (err) {
+        console.error("Error processing image:", err);
+        // Fallback to original if resize fails
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          setPreview(result);
+          const base64 = result.split(",")[1];
+          onImageUpload(base64, file.type);
+        };
+        reader.readAsDataURL(file);
+      }
     },
     [onImageUpload]
   );
+
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

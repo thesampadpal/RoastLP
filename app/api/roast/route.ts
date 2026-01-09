@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { ROAST_SYSTEM_PROMPT, ROAST_USER_PROMPT } from "@/lib/prompts";
 import { parseRoastResponse } from "@/lib/claude";
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { image, mimeType } = await request.json();
+
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error("OPENROUTER_API_KEY is not set");
+      return NextResponse.json(
+        { error: "Server configuration error: Missing API Key" },
+        { status: 500 }
+      );
+    }
 
     // Validation
     if (!image || !mimeType) {
@@ -14,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate mime type
     const validMimeTypes = ["image/png", "image/jpeg", "image/webp", "image/gif"];
     if (!validMimeTypes.includes(mimeType)) {
       return NextResponse.json(
@@ -23,85 +32,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // List of models to try in order of preference
-    const MODELS = [
-      "google/gemini-2.0-flash-exp:free",
-      "google/gemini-2.0-flash-thinking-exp:free",
-      "google/gemini-exp-1206:free",
-      "meta-llama/llama-3.2-90b-vision-instruct:free",
-    ];
-
-    let lastError = null;
-    let responseText = "";
-
-    // Try each model until one works
-    for (const model of MODELS) {
-      try {
-        console.log(`Attempting roast with model: ${model}`);
-
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "http://localhost:3000",
-            "X-Title": "Roast My Landing Page",
+    // Use OpenRouter with gpt-4o-mini - cheap, reliable, has vision
+    // $1 free credit = ~6,600 roasts at $0.15/1M tokens
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "Roast My Landing Page",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: ROAST_SYSTEM_PROMPT,
           },
-          body: JSON.stringify({
-            model: model,
-            messages: [
+          {
+            role: "user",
+            content: [
               {
-                role: "system",
-                content: ROAST_SYSTEM_PROMPT,
+                type: "image_url",
+                image_url: {
+                  url: `data:${mimeType};base64,${image}`,
+                },
               },
               {
-                role: "user",
-                content: [
-                  {
-                    type: "image_url",
-                    image_url: {
-                      url: `data:${mimeType};base64,${image}`,
-                    },
-                  },
-                  {
-                    type: "text",
-                    text: ROAST_USER_PROMPT,
-                  },
-                ],
+                type: "text",
+                text: ROAST_USER_PROMPT,
               },
             ],
-            max_tokens: 1024,
-            temperature: 0.8,
-          }),
-        });
+          },
+        ],
+        max_tokens: 1024,
+        temperature: 0.8,
+      }),
+    });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.warn(`Model ${model} failed:`, errorData);
-          throw new Error(errorData.error?.message || `API request to ${model} failed`);
-        }
-
-        const data = await response.json();
-        responseText = data.choices?.[0]?.message?.content || "";
-
-        if (responseText) {
-          console.log(`Successfully generated roast with ${model}`);
-          break; // Success! Exit loop
-        }
-      } catch (err) {
-        lastError = err;
-        console.warn(`Failed with ${model}, trying next...`);
-        // Continue to next model
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("OpenRouter error:", errorData);
+      throw new Error(errorData.error?.message || "API request failed");
     }
 
+    const data = await response.json();
+    const responseText = data.choices?.[0]?.message?.content || "";
+
     if (!responseText) {
-      throw lastError || new Error("All models failed to generate a response");
+      throw new Error("Empty response from API");
     }
 
     const parsed = parseRoastResponse(responseText);
-
     return NextResponse.json(parsed);
+
   } catch (error) {
     console.error("Roast API error:", error);
 
