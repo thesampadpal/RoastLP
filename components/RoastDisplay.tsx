@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import html2canvas from "html2canvas";
 
 interface RoastDisplayProps {
   copyRoast: string;
@@ -15,8 +16,29 @@ interface RoastDisplayProps {
 export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixFirst, slopScore, shareUrl }: RoastDisplayProps) {
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const fullRoastText = `COPY ROAST:\n${copyRoast}\n\nDESIGN PATTERNS:\n${designRoast}\n\nFIX THIS FIRST:\n${fixFirst}`;
+
+  const handleDownload = async () => {
+    if (!reportRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        backgroundColor: "#0a0a0a",
+        scale: 2,
+      });
+      const link = document.createElement("a");
+      link.download = `roast-report-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("Failed to download:", err);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(fullRoastText);
@@ -59,6 +81,7 @@ export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixF
 
   return (
     <motion.div
+      ref={reportRef}
       variants={container}
       initial="hidden"
       animate="show"
@@ -129,6 +152,13 @@ export default function RoastDisplay({ copyRoast, designRoast, slopSignals, fixF
           className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-xs tracking-widest uppercase transition-colors"
         >
           SHARE_ON_X
+        </button>
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white text-xs tracking-widest uppercase transition-colors disabled:opacity-50"
+        >
+          {downloading ? "GENERATING..." : "DOWNLOAD_PNG"}
         </button>
       </motion.div>
     </motion.div>
